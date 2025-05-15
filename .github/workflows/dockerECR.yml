@@ -1,19 +1,18 @@
-name: .NET Docker Build Workflow (Local Only)
+name: .NET Docker Build and Deploy Locally
 
 on:
+  workflow_dispatch: # Manually trigger the workflow
   push:
     branches:
-      - dev
       - master
   pull_request:
     branches:
-      - dev
       - master
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -21,7 +20,13 @@ jobs:
       - name: Set Up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build Docker Image (Local Only)
+      - name: Build Docker Image
         run: |
-          docker build -t cf-application:${{ github.sha }} -f CFWebAPI/Dockerfile .
-          docker images cf-application:${{ github.sha }}
+          docker build -t cfwebapi:local -f CFWebAPI/Dockerfile CFWebAPI
+          docker save cfwebapi:local -o cfwebapi_local.tar
+
+      - name: Upload Docker Image as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: cfwebapi_local_image
+          path: cfwebapi_local.tar
