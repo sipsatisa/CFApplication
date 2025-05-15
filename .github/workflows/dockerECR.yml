@@ -3,9 +3,11 @@ name: .NET Docker Build Workflow (Local Only)
 on:
   push:
     branches:
+      - dev
       - master
   pull_request:
     branches:
+      - dev
       - master
 
 jobs:
@@ -21,5 +23,5 @@ jobs:
 
       - name: Build Docker Image (Local Only)
         run: |
-          docker build -t cf-application:${{ github.sha }} -f CFWebAPI/Dockerfile CFWebAPI
+          docker build -t cf-application:${{ github.sha }} -f CFWebAPI/Dockerfile .
           docker images cf-application:${{ github.sha }}
