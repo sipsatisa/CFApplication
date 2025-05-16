@@ -12,7 +12,8 @@ jobs:
     runs-on: [ self-hosted ]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Dump workspace tree
         run: ls -R .
@@ -21,8 +22,14 @@ jobs:
         run: docker build -t cfwebapi:latest -f CFWebAPI/Dockerfile .
 
       - name: (Re)start container
+        shell: powershell
         run: |
-          if docker ps -q --filter "name=cfwebapi-local"; then
-            docker stop cfwebapi-local && docker rm cfwebapi-local
-          fi
+          # get any existing container ID by name
+          $existing = docker ps -aq -f "name=cfwebapi-local"
+          if ($existing) {
+            Write-Host "Stopping & removing existing container..."
+            docker stop cfwebapi-local
+            docker rm cfwebapi-local
+          }
+          Write-Host "Starting new container..."
           docker run -d --name cfwebapi-local -p 5000:80 cfwebapi:latest
