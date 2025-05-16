@@ -20,7 +20,6 @@ jobs:
 
       - name: Build Docker image locally
         # explicit pwsh so we can run a single-line build command
-        shell: pwsh
         run: |
           docker build -t cfwebapi:latest -f CFWebAPI/Dockerfile CFWebAPI
 
