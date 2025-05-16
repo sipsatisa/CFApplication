@@ -1,32 +1,40 @@
-name: .NET Docker Build and Deploy Locally
+name: Build & Deploy to Local Docker
 
+# you can still trigger on pushes/PRs or manually
 on:
-  workflow_dispatch: # Manually trigger the workflow
+  workflow_dispatch:
   push:
-    branches:
-      - master
+    branches: [ dev, master ]
   pull_request:
-    branches:
-      - master
+    branches: [ dev, master ]
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+  deploy-local:
+    # target your self-hosted runner
+    runs-on: [ self-hosted ]
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set Up Docker Buildx
+      - name: Ensure Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build Docker Image
+      - name: Build Docker image locally
         run: |
-          docker build -t cfwebapi:local -f CFWebAPI/Dockerfile CFWebAPI
-          docker save cfwebapi:local -o cfwebapi_local.tar
+          # build — the Docker daemon on this runner is your local Docker
+          docker build \
+            -t cfwebapi:latest \
+            -f CFWebAPI/Dockerfile \
+            CFWebAPI
 
-      - name: Upload Docker Image as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: cfwebapi_local_image
-          path: cfwebapi_local.tar
+      - name: (Re)start container
+        run: |
+          # stop & remove any running container
+          docker stop cfwebapi-local || true
+          docker rm cfwebapi-local  || true
+          # run new one
+          docker run -d \
+            --name cfwebapi-local \
+            -p 5000:80 \
+            cfwebapi:latest
