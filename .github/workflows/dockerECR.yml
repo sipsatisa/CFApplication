@@ -3,23 +3,22 @@ name: Build & Deploy to Local Docker
 on:
   workflow_dispatch:
   push:
-    branches: [ dev, master ]
+    branches: [master ]
   pull_request:
-    branches: [ dev, master ]
+    branches: [master ]
 
 jobs:
   deploy-local:
     runs-on: [ self-hosted ]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Dump workspace tree
         run: ls -R .
 
       - name: Build Docker image locally
-        run: docker build -t cfwebapi:latest -f CFWebAPI/Dockerfile CFWebAPI
+        run: docker build -t cfwebapi:latest -f CFWebAPI/Dockerfile .
 
       - name: (Re)start container
         run: |
