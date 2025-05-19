@@ -7,5 +7,12 @@ namespace CFWebAPI.API
     [ApiController]
     public class externalregistration : ControllerBase
     {
+        public externalregistration() { }
+        [HttpGet]
+        [Route("details")]
+        public async Task<String> DetailsAsync([FromQuery] string name)
+        {
+            return name;
+        }
     }
 }
